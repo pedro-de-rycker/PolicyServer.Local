@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
+using Microsoft.AspNetCore.Identity;
 
 namespace PolicyServer.Local
 {
@@ -47,7 +48,13 @@ namespace PolicyServer.Local
                 if (Subjects.Contains(sub)) return true;
             }
 
-            var roles = user.FindAll("role").Select(x => x.Value);
+            List<string> roles = new List<string>();
+
+            foreach(ClaimsIdentity identity in user.Identities)
+            {
+                roles.AddRange(user.FindAll(identity.RoleClaimType).Select(x => x.Value));
+            }
+
             if (roles.Any())
             {
                 if (IdentityRoles.Any(x => roles.Contains(x))) return true;
